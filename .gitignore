@@ -16,3 +16,13 @@ credentials.txt
 *.log
 .DS_Store
 Thumbs.db
+
+# Python & Databases
+__pycache__/
+*.pyc
+venv/
+.venv/
+instance/
+*.db
+backend/app.db
+

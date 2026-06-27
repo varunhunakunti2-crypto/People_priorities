@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthProvider';
 
-export const EnterpriseRegisterUI = () => {
+export const EnterpriseRegisterUI = ({ onSuccess, onBackToHome, onSwitchToLogin }) => {
   const { register } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,11 +25,15 @@ export const EnterpriseRegisterUI = () => {
       const response = await register(email, password, fullName, department, role);
       const user = response.user;
       
-      // Redirect based on role
-      if (user.role === 'manager') {
-        window.location.href = '/dashboard';
+      if (onSuccess) {
+        onSuccess(user);
       } else {
-        window.location.href = '/ledger';
+        // Redirect based on role
+        if (user.role === 'manager') {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/ledger';
+        }
       }
     } catch (err) {
       console.error('Registration error:', err);
@@ -42,8 +46,21 @@ export const EnterpriseRegisterUI = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#fafafa] px-4 py-12 sm:px-6 lg:px-8 font-sans">
-      <div className="w-full max-w-md space-y-6 bg-white p-8 rounded-xl border border-[#ebebeb] shadow-sm">
+      <div className="w-full max-w-md space-y-6 bg-white p-8 rounded-xl border border-[#ebebeb] shadow-sm relative">
         
+        {/* Back Button */}
+        {onBackToHome && (
+          <button
+            onClick={onBackToHome}
+            className="absolute top-6 left-6 flex items-center gap-1.5 text-xs font-semibold text-[#888888] hover:text-[#171717] transition cursor-pointer"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </button>
+        )}
+
         {/* Header */}
         <div className="flex flex-col items-center justify-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#171717] text-white font-mono text-xl font-bold">
@@ -173,9 +190,12 @@ export const EnterpriseRegisterUI = () => {
         <div className="text-center pt-2 border-t border-[#ebebeb]">
           <p className="text-sm text-[#888888]">
             Already have an account?{' '}
-            <a href="/login" className="font-semibold text-[#171717] hover:underline">
+            <button
+              onClick={onSwitchToLogin || (() => window.location.href = '/login')}
+              className="font-semibold text-[#171717] hover:underline bg-transparent border-0 p-0 cursor-pointer"
+            >
               Sign in
-            </a>
+            </button>
           </p>
         </div>
       </div>

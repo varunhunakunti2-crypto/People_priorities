@@ -17,3 +17,13 @@
 .animate-slide-up {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Completely remove the Astro dev toolbar from the view */
+#astro-dev-toolbar,
+astro-dev-toolbar,
+.astro-dev-toolbar {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

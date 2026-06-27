@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthProvider';
 
-export const EnterpriseLoginUI = () => {
+export const EnterpriseLoginUI = ({ onSuccess, onBackToHome, onSwitchToRegister }) => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,11 +22,15 @@ export const EnterpriseLoginUI = () => {
       const response = await login(email, password);
       const user = response.user;
       
-      // Redirect based on role
-      if (user.role === 'manager') {
-        window.location.href = '/dashboard';
+      if (onSuccess) {
+        onSuccess(user);
       } else {
-        window.location.href = '/ledger';
+        // Redirect based on role
+        if (user.role === 'manager') {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/ledger';
+        }
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -39,8 +43,21 @@ export const EnterpriseLoginUI = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#fafafa] px-4 py-12 sm:px-6 lg:px-8 font-sans">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl border border-[#ebebeb] shadow-sm">
+      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl border border-[#ebebeb] shadow-sm relative">
         
+        {/* Back Button */}
+        {onBackToHome && (
+          <button
+            onClick={onBackToHome}
+            className="absolute top-6 left-6 flex items-center gap-1.5 text-xs font-semibold text-[#888888] hover:text-[#171717] transition cursor-pointer"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </button>
+        )}
+
         {/* Header / Brand */}
         <div className="flex flex-col items-center justify-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#171717] text-white font-mono text-xl font-bold">
@@ -124,9 +141,12 @@ export const EnterpriseLoginUI = () => {
         <div className="text-center pt-2 border-t border-[#ebebeb]">
           <p className="text-sm text-[#888888]">
             Don't have an account?{' '}
-            <a href="/register" className="font-semibold text-[#171717] hover:underline">
+            <button
+              onClick={onSwitchToRegister || (() => window.location.href = '/register')}
+              className="font-semibold text-[#171717] hover:underline bg-transparent border-0 p-0 cursor-pointer"
+            >
               Register
-            </a>
+            </button>
           </p>
         </div>
 
