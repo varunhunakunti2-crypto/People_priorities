@@ -208,6 +208,41 @@ def seed_database_route():
             "message": f"Database tables verified. Seeded tables: {seeded_tables}. Classification: {classification_status}"
         }
             
+@app.get("/admin/db-status")
+def db_status_route():
+    try:
+        from database import DATABASE_URL
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        import re
+        
+        try:
+            conn = psycopg2.connect(DATABASE_URL, connect_timeout=5)
+            conn.autocommit = True
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+        except Exception as pg_err:
+            return {"status": "error", "message": f"Postgres connection failed: {str(pg_err)}"}
+            
+        tables = ["villages", "schools", "existing_works", "submissions", "themes", "submission_themes", "users"]
+        counts = {}
+        for t in tables:
+            try:
+                cursor.execute(f"SELECT COUNT(*) as count FROM {t};")
+                res = cursor.fetchone()
+                counts[t] = res['count'] if isinstance(res, dict) else res[0]
+            except Exception as table_err:
+                counts[t] = f"Error: {str(table_err)}"
+                
+        masked_url = "None"
+        if DATABASE_URL:
+            masked_url = re.sub(r':([^@]+)@', ':****@', DATABASE_URL)
+            
+        conn.close()
+        return {
+            "status": "success",
+            "database_url_seen": masked_url,
+            "table_counts": counts
+        }
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
