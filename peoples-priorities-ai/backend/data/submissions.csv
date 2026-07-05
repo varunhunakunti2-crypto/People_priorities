@@ -1,0 +1,88 @@
+submission_id,village_id,raw_text,channel,language_detected,submitted_on,status
+SUB001,VIL005,The government primary school building has developed large cracks. It is unsafe for our children.,whatsapp,English,2025-12-29 00:00:00,Resolved
+SUB002,VIL003,"हमारे गांव के सरकारी मिडिल स्कूल की छत बारिश में बहुत टपकती है, बच्चे पढ़ नहीं पाते।",grievance_portal,Hindi,2025-09-13 00:00:00,Open
+SUB003,VIL012,Humare high school me ladkiyo ke liye koi saaf bathroom nahi hai. Iski wajah se bohot dikkat hoti hai.,web_form,Hinglish,2025-10-24 00:00:00,In Progress
+SUB004,VIL006,Primary school boundary wall is broken. Cow and goats enter the school yard during classes.,web_form,English,2026-03-30 00:00:00,In Progress
+SUB005,VIL018,स्कूल में पीने के पानी की टंकी पिछले 6 महीने से टूटी पड़ी है। बच्चों को घर से पानी लाना पड़ता है।,public_meeting,Hindi,2025-11-11 00:00:00,In Progress
+SUB006,VIL020,"School me bench aur desk ki bohot kami hai, bache zameen par baith kar padhai karte hain.",whatsapp,Hinglish,2025-01-14 00:00:00,In Progress
+SUB007,VIL018,We need a computer lab or at least a few computers in our secondary school for students.,whatsapp,English,2025-11-08 00:00:00,In Progress
+SUB008,VIL004,सरकारी स्कूल में ब्लैकबोर्ड बहुत पुराना और खराब हो चुका है। कुछ भी साफ दिखाई नहीं देता।,public_meeting,Hindi,2025-05-23 00:00:00,Open
+SUB009,VIL009,"Humare anganwadi kendra ki halat kharab hai, chat ka plaster gir raha hai.",public_meeting,Hinglish,2025-05-04 00:00:00,Resolved
+SUB010,VIL004,No proper electricity or fans in the school. During summer it gets extremely hot inside.,whatsapp,English,2025-06-14 00:00:00,Open
+SUB011,VIL009,"उच्च माध्यमिक विद्यालय में खेल का मैदान झाड़ियों से भरा है, बच्चे खेल नहीं सकते।",web_form,Hindi,2025-10-21 00:00:00,Open
+SUB012,VIL020,"Primary school ke kitchen shed ki deewar toot rahi hai, mid day meal banana unsafe hai.",web_form,Hinglish,2025-08-09 00:00:00,In Progress
+SUB013,VIL011,Our village school library does not have enough books for students to read.,web_form,English,2025-08-02 00:00:00,Open
+SUB014,VIL009,The public hand pump near the main temple is broken for three weeks. Please repair.,grievance_portal,English,2026-06-07 00:00:00,Open
+SUB015,VIL016,"गांव में नल-जल योजना के पाइप बिछाए गए थे, पर आज तक नल में पानी नहीं आया।",grievance_portal,Hindi,2025-09-20 00:00:00,Open
+SUB016,VIL002,"Pani ki supply roz subah sirf 15-20 minute ke liye aati hai, wo bhi bohot ganda pani hota hai.",web_form,Hinglish,2025-04-10 00:00:00,In Progress
+SUB017,VIL014,Groundwater has gone down and the community borewell has dried up. We need a new deep borewell.,sms,English,2025-10-16 00:00:00,Resolved
+SUB018,VIL002,दलित बस्ती के कुएं में पानी बहुत कम बचा है और वहां कोई नल कनेक्शन नहीं है। कृपया ध्यान दें।,grievance_portal,Hindi,2025-01-09 00:00:00,Resolved
+SUB019,VIL011,"Gaon ki tanki se pani leak ho raha hai, sadak par jal-jamao ho jata hai par pani gharo me nahi milta.",whatsapp,Hinglish,2025-05-19 00:00:00,Open
+SUB020,VIL009,High fluoride levels in our village well water are causing joint problems. We need a filtration unit.,grievance_portal,English,2025-06-20 00:00:00,Resolved
+SUB021,VIL015,"पीने के पानी में बहुत बदबू आ रही है, गांव के कई बच्चे दस्त और पेट दर्द से बीमार हो गए हैं।",public_meeting,Hindi,2026-03-19 00:00:00,Open
+SUB022,VIL018,"Main water pipeline rasta banane ke time toot gayi thi, abhi tak repair nahi ki gayi.",whatsapp,Hinglish,2025-01-15 00:00:00,In Progress
+SUB023,VIL004,We request the administration to install three new public taps near the weekly market ground.,whatsapp,English,2025-03-24 00:00:00,Resolved
+SUB024,VIL005,"वार्ड नंबर 4 में पानी की कोई व्यवस्था नहीं है, महिलाओं को 2 किलोमीटर दूर से पानी लाना पड़ता है।",public_meeting,Hindi,2025-02-11 00:00:00,Open
+SUB025,VIL012,Bleaching powder aur chlorine tablets pani ke kuon me daalne ke liye nahi bheji ja rahi hain.,grievance_portal,Hinglish,2025-06-06 00:00:00,In Progress
+SUB026,VIL014,The road connecting our village to the block headquarter is full of deep potholes.,web_form,English,2025-05-16 00:00:00,Resolved
+SUB027,VIL002,"बरसात में गांव का रास्ता पूरा कीचड़ बन जाता है, एम्बुलेंस भी गांव के अंदर नहीं आ पाती।",whatsapp,Hindi,2025-11-17 00:00:00,Resolved
+SUB028,VIL012,Gaon ki main road banaye hue sirf 6 mahine hue the par abhi se tar-coal ukhar gaya hai.,whatsapp,Hinglish,2025-02-15 00:00:00,Resolved
+SUB029,VIL012,"We need a small concrete bridge over the local stream. During heavy rains, we get cut off.",whatsapp,English,2025-08-09 00:00:00,Open
+SUB030,VIL008,गांव की गलियों में खड़ंजा (paved path) नहीं होने से बुजुर्गों को चलने में बड़ी परेशानी होती है।,public_meeting,Hindi,2025-04-21 00:00:00,Open
+SUB031,VIL012,"Gaon me enters hone wali road par street lights nahi hain, raat ko andhere me accidents hote hain.",whatsapp,Hinglish,2026-02-26 00:00:00,Resolved
+SUB032,VIL020,The public bus service has stopped visiting our village due to the damaged condition of the link road.,public_meeting,English,2025-06-13 00:00:00,In Progress
+SUB033,VIL008,"शमशान घाट तक जाने वाला रास्ता कच्चा है, बारिश के मौसम में वहां जाना बहुत मुश्किल हो जाता है।",sms,Hindi,2025-06-21 00:00:00,Open
+SUB034,VIL006,Drainage system block hone se naali ka pani sadak par beh raha hai. Bohot badbu aati hai.,whatsapp,Hinglish,2026-03-04 00:00:00,Open
+SUB035,VIL001,Speed breakers are urgently required near the village primary school to avoid speeding trucks.,grievance_portal,English,2025-07-08 00:00:00,In Progress
+SUB036,VIL011,"स्वास्थ्य उपकेंद्र जाने वाला रास्ता बहुत उबड़-खाबड़ है, गर्भवती महिलाओं को ले जाने में डर लगता है।",grievance_portal,Hindi,2026-03-03 00:00:00,In Progress
+SUB037,VIL008,"Heavy rain wash away the side gravels of PMGSY road, it is becoming narrow and dangerous.",web_form,English,2025-10-06 00:00:00,Open
+SUB038,VIL006,The primary health subcentre is locked most of the time. The ANM nurse rarely visits.,web_form,English,2025-04-26 00:00:00,In Progress
+SUB039,VIL013,हमारे उप स्वास्थ्य केंद्र में बुखार और सामान्य दर्द की दवाइयां भी उपलब्ध नहीं हैं।,whatsapp,Hindi,2025-02-14 00:00:00,Resolved
+SUB040,VIL016,Gaon me koi delivery room ya midwife nahi hai. Emergency me sheher jana padta hai jo 25km door hai.,whatsapp,Hinglish,2025-08-21 00:00:00,Open
+SUB041,VIL007,There is no doctor available during weekends. For emergencies we have to run to private clinics.,web_form,English,2026-04-22 00:00:00,In Progress
+SUB042,VIL012,स्वास्थ्य केंद्र की इमारत जर्जर हो चुकी है। वहां न तो बिजली है और न ही शौचालय की व्यवस्था।,sms,Hindi,2025-11-14 00:00:00,Open
+SUB043,VIL008,Gaon ke bacho ke liye regular vaccination camps (tika karan) nahi lagaye ja rahe hain.,web_form,Hinglish,2025-08-22 00:00:00,In Progress
+SUB044,VIL001,The staff at the community health center asks for money even for free government medicines.,web_form,English,2025-07-22 00:00:00,Resolved
+SUB045,VIL013,"गांव में मलेरिया और डेंगू के मामले बढ़ रहे हैं, लेकिन स्वास्थ्य विभाग ने कोई फॉगिंग नहीं कराई।",grievance_portal,Hindi,2025-12-08 00:00:00,Open
+SUB046,VIL009,"PHC me basic blood test ya malaria test ke liye bhi facility nahi hai, lab technician nahi aata.",web_form,Hinglish,2025-03-18 00:00:00,Resolved
+SUB047,VIL009,We need an ambulance or medical vehicle stationed at our cluster level for immediate emergencies.,whatsapp,English,2025-12-31 00:00:00,Open
+SUB048,VIL017,"उप-केंद्र के आसपास बहुत गंदगी फैली रहती है, जिससे वहां संक्रमण फैलने का खतरा बना रहता है।",grievance_portal,Hindi,2026-02-19 00:00:00,Resolved
+SUB049,VIL018,Anti-venom injection is not available in the local government clinic for snake bites.,public_meeting,Hinglish,2025-12-11 00:00:00,In Progress
+SUB050,VIL001,No MGNREGA work has been started in our panchayat for the last three months. We need work.,whatsapp,English,2025-05-04 00:00:00,Open
+SUB051,VIL009,मनरेगा के तहत किए गए काम का भुगतान पिछले 4 महीनों से लंबित है। कृपया हमारी मजदूरी दिलाएं।,grievance_portal,Hindi,2025-07-07 00:00:00,In Progress
+SUB052,VIL019,Gaon ke ladke-ladkiyon ke liye computer training ya computer center shuru kiya jana chahiye.,whatsapp,Hinglish,2025-10-04 00:00:00,Resolved
+SUB053,VIL002,"Requesting a skill development center for youth in mobile repairing, electrician, and tailoring.",web_form,English,2025-04-27 00:00:00,Open
+SUB054,VIL020,"नया जॉब कार्ड बनवाने के लिए ग्राम रोजगार सहायक पैसे मांगते हैं, गरीब लोग कहां जाएं?",web_form,Hindi,2026-03-26 00:00:00,Open
+SUB055,VIL012,Mahila self help groups (SHGs) ko stitching aur pickle making ke training ki zaroorat hai.,web_form,Hinglish,2025-11-23 00:00:00,Open
+SUB056,VIL014,Local youth are migrating to distant cities because there are zero employment opportunities here.,web_form,English,2026-06-13 00:00:00,In Progress
+SUB057,VIL004,जैविक खेती और नई कृषि तकनीकों के बारे में प्रशिक्षण शिविर का आयोजन किया जाना चाहिए।,grievance_portal,Hindi,2026-02-04 00:00:00,In Progress
+SUB058,VIL019,Dairy farming aur poultry industry set up karne ke liye subsidy aur guidance ki request hai.,public_meeting,Hinglish,2025-07-19 00:00:00,Open
+SUB059,VIL009,No vocational course options are available in our block after 10th or 12th standard.,whatsapp,English,2025-02-20 00:00:00,Resolved
+SUB060,VIL014,"मनरेगा के मस्टर रोल में गड़बड़ी की जा रही है, जो लोग काम नहीं कर रहे उनके नाम भी डाले जा रहे हैं।",whatsapp,Hindi,2025-01-07 00:00:00,Resolved
+SUB061,VIL017,"Need support for processing units of local crops like mango, cashew so youth get local jobs.",web_form,Hinglish,2025-07-26 00:00:00,Resolved
+SUB062,VIL012,Power cuts last for 14-16 hours daily. Students are unable to study during exam times.,web_form,English,2026-03-23 00:00:00,Resolved
+SUB063,VIL003,हमारे मोहल्ले का बिजली ट्रांसफार्मर जल गया है। पूरा वार्ड 10 दिनों से अंधेरे में है।,whatsapp,Hindi,2025-12-10 00:00:00,Resolved
+SUB064,VIL020,Voltage fluctuation itna jyada hota hai ki ghar ke bulb jal jate hain aur motor nahi chalti.,web_form,Hinglish,2025-11-23 00:00:00,In Progress
+SUB065,VIL004,High tension wires are hanging too low over the main street. It is very dangerous.,public_meeting,English,2025-11-09 00:00:00,In Progress
+SUB066,VIL017,गांव के प्रमुख चौराहों पर स्ट्रीट लाइट की जरूरत है ताकि रात में महिलाएं सुरक्षित महसूस करें।,sms,Hindi,2025-11-18 00:00:00,In Progress
+SUB067,VIL014,Bina meter reading liye hi har mahine bohot bada electricity bill bhej diya jata hai.,whatsapp,Hinglish,2025-12-06 00:00:00,In Progress
+SUB068,VIL013,Many households in the outer colony are still waiting for domestic electricity connections.,sms,English,2025-11-04 00:00:00,Resolved
+SUB069,VIL018,बिजली विभाग का कोई भी लाइनमैन शिकायत करने के बाद भी तार ठीक करने नहीं आता है।,web_form,Hindi,2025-05-16 00:00:00,Open
+SUB070,VIL007,Requesting solar street lights for our village path because grid power is highly unreliable.,public_meeting,Hinglish,2026-03-12 00:00:00,Resolved
+SUB071,VIL013,The old wooden poles supporting the power lines are rotting and could collapse at any time.,whatsapp,English,2025-07-03 00:00:00,In Progress
+SUB072,VIL020,"कृषि फीडर में केवल रात को 2 घंटे बिजली मिलती है, जिससे रात में सिंचाई करना कठिन होता है।",whatsapp,Hindi,2025-11-10 00:00:00,Open
+SUB073,VIL013,Gaon ki solar microgrid scheme kharab battery ki wajah se 1 saal se band padi hai.,whatsapp,Hinglish,2025-01-06 00:00:00,Open
+SUB074,VIL010,The irrigation canal is damaged and water does not reach the fields located at the tail end.,sms,English,2025-10-26 00:00:00,Open
+SUB075,VIL007,खेतों में पानी के संरक्षण के लिए एक छोटे चेक डैम का निर्माण बहुत जरूरी है।,public_meeting,Hindi,2026-03-22 00:00:00,Resolved
+SUB076,VIL019,"Sarkari tubewell ki motor kharab ho gayi hai, khet sookh rahe hain, please jaldi thik karein.",grievance_portal,Hinglish,2025-12-01 00:00:00,In Progress
+SUB077,VIL015,We need subsidies and access to drip irrigation kits for low-water cultivation.,whatsapp,English,2026-04-03 00:00:00,Resolved
+SUB078,VIL015,"नहर में गाद (silt) जमा होने के कारण पानी का प्रवाह रुक गया है, नहर की सफाई कराई जाए।",grievance_portal,Hindi,2025-08-12 00:00:00,Open
+SUB079,VIL017,Panchayat ki lift irrigation scheme electric connection na hone ki wajah se bekar padi hai.,public_meeting,Hinglish,2026-05-05 00:00:00,Resolved
+SUB080,VIL006,We request financial assistance for digging farm ponds (khet talab) to store rainwater.,public_meeting,English,2025-04-02 00:00:00,In Progress
+SUB081,VIL010,"भूजल स्तर (groundwater level) बहुत नीचे चला गया है, वॉटर रिचार्जिंग स्ट्रक्चर की जरूरत है।",sms,Hindi,2026-06-17 00:00:00,Open
+SUB082,VIL020,"Nahar ke sluice gate jam hain, paani release karne me kafi dikkat aati hai.",public_meeting,Hinglish,2025-12-15 00:00:00,Resolved
+SUB083,VIL003,"The canal banks have breached in multiple places, flooding nearby farms while others dry up.",web_form,English,2025-09-03 00:00:00,Open
+SUB084,VIL010,सिंचाई विभाग के अधिकारी नहर में पानी छोड़ने का कोई निश्चित समय नहीं बताते हैं।,whatsapp,Hindi,2025-08-24 00:00:00,Resolved
+SUB085,VIL007,Solar water pump sets scheme ke subsidy approvals block level par fansi hui hain.,public_meeting,Hinglish,2025-06-05 00:00:00,Open
+SUB086,VIL001,Primary school middle section needs a laboratory for basic science practicals.,sms,English,2025-02-22 00:00:00,Open
+SUB087,VIL008,"हमारे गांव के सार्वजनिक कुएं की सफाई पिछले दो सालों से नहीं हुई है, पानी पीने योग्य नहीं है।",public_meeting,Hindi,2026-05-07 00:00:00,Resolved

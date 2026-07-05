@@ -1,0 +1,36 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+.env
+
+# Python compilation files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Databases
+*.db
+*.db-journal
+*.sqlite3
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Hackathon / temporary clutter
+node_modules/
+dist/
+build/
+.cache/
+
+# Project exports (as requested by user, gitignored)
+/exports/*
+!/exports/.gitkeep

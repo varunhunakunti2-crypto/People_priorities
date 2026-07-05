@@ -1,0 +1,36 @@
+work_id,village_id,source,work_type,amount_lakh_inr,status,year
+WRK001,VIL018,GPDP,Water Pipeline Extension,5.43,Completed,2026
+WRK002,VIL018,GPDP,Streetlight Installation,2.75,Completed,2026
+WRK003,VIL007,GPDP,Streetlight Installation,3.81,Completed,2026
+WRK004,VIL012,MPLADS,Community Hall building,15.98,In Progress,2026
+WRK005,VIL004,GPDP,School Toilet Block construction,11.95,In Progress,2023
+WRK006,VIL011,GPDP,Anganwadi Center Repair,0.96,Completed,2024
+WRK007,VIL019,GPDP,Road Paving,24.01,Completed,2023
+WRK008,VIL002,GPDP,Borewell Installation,1.46,In Progress,2023
+WRK009,VIL011,GPDP,Community Hall building,22.82,Completed,2024
+WRK010,VIL009,MPLADS,School Toilet Block construction,19.52,Completed,2024
+WRK011,VIL019,MPLADS,School Toilet Block construction,6.66,In Progress,2026
+WRK012,VIL014,GPDP,Borewell Installation,3.61,In Progress,2023
+WRK013,VIL014,MPLADS,Health Subcentre Renovation,4.58,Proposed,2026
+WRK014,VIL015,GPDP,Borewell Installation,3.48,Completed,2023
+WRK015,VIL013,MPLADS,Borewell Installation,4.93,Completed,2024
+WRK016,VIL007,GPDP,Community Hall building,15.38,Completed,2026
+WRK017,VIL005,MPLADS,Water Pipeline Extension,0.93,Proposed,2025
+WRK018,VIL015,GPDP,Borewell Installation,5.15,In Progress,2026
+WRK019,VIL018,GPDP,Road Paving,14.7,Completed,2023
+WRK020,VIL003,GPDP,Water Pipeline Extension,1.61,Completed,2026
+WRK021,VIL016,MPLADS,School Toilet Block construction,17.86,Sanctioned-Not-Started,2026
+WRK022,VIL002,GPDP,Health Subcentre Renovation,4.23,Completed,2023
+WRK023,VIL013,MPLADS,Pond Desilting,5.77,Sanctioned-Not-Started,2025
+WRK024,VIL014,MPLADS,Water Pipeline Extension,3.68,In Progress,2024
+WRK025,VIL010,GPDP,Road Paving,14.94,Completed,2023
+WRK026,VIL011,GPDP,Road Paving,13.51,Sanctioned-Not-Started,2026
+WRK027,VIL017,GPDP,Road Paving,5.82,Completed,2023
+WRK028,VIL006,GPDP,Anganwadi Center Repair,1.04,Completed,2023
+WRK029,VIL008,MPLADS,Borewell Installation,5.25,Sanctioned-Not-Started,2024
+WRK030,VIL019,GPDP,Anganwadi Center Repair,3.27,Completed,2023
+WRK031,VIL014,MPLADS,Streetlight Installation,3.36,In Progress,2024
+WRK032,VIL011,GPDP,Streetlight Installation,1.7,In Progress,2026
+WRK033,VIL005,MPLADS,Pond Desilting,2.87,In Progress,2025
+WRK034,VIL003,GPDP,Pond Desilting,4.1,Completed,2023
+WRK035,VIL003,GPDP,Community Hall building,13.93,In Progress,2025
