@@ -79,78 +79,80 @@ export default function BudgetInput({ onSimulate, isLoading }: BudgetInputProps)
   return (
     <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-6">
       {/* SECTION HEADER */}
-      <div>
+      <div className="text-center">
         <h2 className="text-lg font-bold text-gray-900 mb-1">Budget Simulator</h2>
         <p className="text-[13px] text-[#666666]">
           Enter available MPLADS budget to generate an optimized sanction list
         </p>
       </div>
 
-      {/* INPUT ROW */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">
-          Available budget (in Lakhs)
-        </label>
-        <div className="flex items-center gap-3">
-          <span className="text-[18px] font-semibold text-[#111]">₹</span>
-          <div className="flex flex-col w-[180px]">
-            <input
-              type="number"
-              value={budgetInput}
-              onChange={handleBudgetChange}
-              placeholder="e.g. 200"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 transition-colors ${
-                error ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
+      <div className="w-full max-w-md mx-auto flex flex-col gap-6 text-left">
+        {/* INPUT ROW */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            Available budget (in Lakhs)
+          </label>
+          <div className="flex items-center gap-3">
+            <span className="text-[18px] font-semibold text-[#111]">₹</span>
+            <div className="flex flex-col w-[180px]">
+              <input
+                type="number"
+                value={budgetInput}
+                onChange={handleBudgetChange}
+                placeholder="e.g. 200"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 transition-colors ${
+                  error ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+            </div>
           </div>
+          
+          {error ? (
+            <p className="text-xs text-red-500 mt-1">{error}</p>
+          ) : isValid && budgetLakh !== null ? (
+            <p className="text-[12px] text-[#7B61FF] font-medium mt-1">
+              {formatIndianCurrencyText(budgetLakh)}
+            </p>
+          ) : null}
         </div>
-        
-        {error ? (
-          <p className="text-xs text-red-500 mt-1">{error}</p>
-        ) : isValid && budgetLakh !== null ? (
-          <p className="text-[12px] text-[#7B61FF] font-medium mt-1">
-            {formatIndianCurrencyText(budgetLakh)}
-          </p>
-        ) : null}
-      </div>
 
-      {/* THEME FILTER ROW */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">
-          Filter by theme (optional)
-        </label>
-        <select
-          value={themeFilter}
-          onChange={(e) => setThemeFilter(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 bg-white"
+        {/* THEME FILTER ROW */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">
+            Filter by theme (optional)
+          </label>
+          <select
+            value={themeFilter}
+            onChange={(e) => setThemeFilter(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 bg-white"
+          >
+            <option value="all">All themes</option>
+            <option value="School Infrastructure">School infrastructure</option>
+            <option value="Water Supply">Water supply</option>
+            <option value="Road Connectivity">Road connectivity</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Employment/Skills">Employment / Skills</option>
+            <option value="Electricity">Electricity</option>
+            <option value="Irrigation">Irrigation / Agriculture</option>
+          </select>
+        </div>
+
+        {/* SIMULATE BUTTON */}
+        <button
+          onClick={handleSimulate}
+          disabled={!isValid || budgetLakh === null || isLoading}
+          className="w-full h-[44px] bg-[#7B61FF] text-white font-medium rounded-[8px] flex items-center justify-center transition-all hover:bg-[#6A52E5] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <option value="all">All themes</option>
-          <option value="School Infrastructure">School infrastructure</option>
-          <option value="Water Supply">Water supply</option>
-          <option value="Road Connectivity">Road connectivity</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Employment/Skills">Employment / Skills</option>
-          <option value="Electricity">Electricity</option>
-          <option value="Irrigation">Irrigation / Agriculture</option>
-        </select>
+          {isLoading ? (
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            "Generate sanction list"
+          )}
+        </button>
       </div>
-
-      {/* SIMULATE BUTTON */}
-      <button
-        onClick={handleSimulate}
-        disabled={!isValid || budgetLakh === null || isLoading}
-        className="w-full h-[44px] bg-[#7B61FF] text-white font-medium rounded-[8px] flex items-center justify-center transition-all hover:bg-[#6A52E5] disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isLoading ? (
-          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-        ) : (
-          "Generate sanction list"
-        )}
-      </button>
     </div>
   );
 }

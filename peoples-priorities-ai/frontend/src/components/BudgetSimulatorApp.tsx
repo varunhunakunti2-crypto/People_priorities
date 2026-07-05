@@ -49,9 +49,7 @@ export default function BudgetSimulatorApp() {
 
   return (
     <div className="flex flex-col gap-8 w-full">
-      <div className="w-full max-w-2xl mx-auto">
-        <BudgetInput onSimulate={handleSimulate} isLoading={isLoading} />
-      </div>
+      <BudgetInput onSimulate={handleSimulate} isLoading={isLoading} />
       
       <div ref={resultsRef} className="w-full">
         {(result || isLoading) && (
