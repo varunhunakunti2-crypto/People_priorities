@@ -46,8 +46,19 @@ def read_root():
 def seed_database_route():
     try:
         from database import DATABASE_URL
-        conn = get_db_connection()
-        cursor = get_cursor(conn)
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        # Force Postgres connection directly to inspect connection issues on Vercel
+        try:
+            conn = psycopg2.connect(DATABASE_URL, connect_timeout=5)
+            conn.autocommit = True
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+        except Exception as pg_err:
+            return {
+                "status": "error", 
+                "message": f"Postgres connection failed: {str(pg_err)}. Please verify DATABASE_URL value in Vercel."
+            }
         
         # 1. Create tables if they do not exist
         cursor.execute("""
