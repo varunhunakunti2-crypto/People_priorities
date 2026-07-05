@@ -43,7 +43,8 @@ def calculate_rankings(weights: dict = None):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.join(base_dir, "data", "peoples_priorities.db")
 
-    if not os.path.exists(db_path):
+    is_deployed = os.getenv("RENDER") or os.getenv("VERCEL")
+    if not is_deployed and not os.path.exists(db_path):
         raise FileNotFoundError(f"Database not found at '{db_path}'. Make sure you run seed/load scripts first.")
 
     conn = get_db_connection()
