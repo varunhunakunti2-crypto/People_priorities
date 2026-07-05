@@ -29,6 +29,11 @@ export default function CitizenSubmissionForm() {
       return;
     }
 
+    if (formData.rawText.trim().length < 10) {
+      setError('Please describe your request in at least 10 characters.');
+      return;
+    }
+
     setLoading(true);
     try {
       await submitComplaint({

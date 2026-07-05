@@ -305,7 +305,11 @@ export async function submitComplaint(payload: ComplaintPayload): Promise<{ subm
       let parsedError = errorText;
       try {
         const errorJson = JSON.parse(errorText);
-        parsedError = errorJson.detail || errorText;
+        if (Array.isArray(errorJson.detail)) {
+          parsedError = errorJson.detail.map((err: any) => `${err.loc.slice(1).join('.') || 'error'}: ${err.msg}`).join(', ');
+        } else {
+          parsedError = errorJson.detail || errorText;
+        }
       } catch {}
       throw new Error(`API returned error status ${res.status}: ${parsedError}`);
     }
