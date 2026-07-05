@@ -20,14 +20,6 @@ ALGORITHM = "HS256"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "data", "peoples_priorities.db")
 
-def get_db_connection():
-    if not os.path.exists(DB_PATH):
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Database file not found. Ensure seeding scripts are run first."
-        )
-    conn = get_db_connection()
-        return conn
 
 # Email validator helper
 EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
