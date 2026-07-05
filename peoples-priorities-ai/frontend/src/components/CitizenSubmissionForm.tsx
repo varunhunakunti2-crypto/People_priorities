@@ -52,15 +52,15 @@ export default function CitizenSubmissionForm() {
 
   return (
     <div
-      className="w-full max-w-[500px] bg-white dark:bg-zinc-900 border border-[#E6E6E6] dark:border-zinc-800 rounded-[16px] shadow-[0_8px_24px_rgba(0,0,0,0.10)] hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col font-sans select-none"
-      style={{ padding: '40px', boxSizing: 'border-box' }}
+      className="w-full max-w-[420px] bg-white dark:bg-zinc-900 border border-[#E6E6E6] dark:border-zinc-800 rounded-[16px] shadow-[0_8px_24px_rgba(0,0,0,0.10)] hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col font-sans select-none"
+      style={{ padding: '32px', boxSizing: 'border-box' }}
     >
       {/* Heading */}
       <div className="flex flex-col text-left mb-6">
-        <h2 className="text-[24px] font-bold text-[#111111] dark:text-zinc-50 leading-tight" style={{ fontWeight: 700 }}>
+        <h2 className="text-[22px] font-bold text-[#111111] dark:text-zinc-50 leading-tight" style={{ fontWeight: 700 }}>
           Submit Development Request
         </h2>
-        <p className="text-[14px] text-[#666666] dark:text-zinc-400 mt-2">
+        <p className="text-[13px] text-[#666666] dark:text-zinc-400 mt-2">
           Tell us what your village needs. Speak or type in your language.
         </p>
       </div>
@@ -69,16 +69,16 @@ export default function CitizenSubmissionForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full" style={{ boxSizing: 'border-box' }}>
         
         {/* Village Selection */}
-        <div className="flex flex-col w-full" style={{ boxSizing: 'border-box' }}>
-          <label htmlFor="villageName" className="text-[12px] font-medium text-[#666666] dark:text-zinc-400 mb-1.5 uppercase tracking-wider block">
+        <div className="flex flex-col w-full text-left" style={{ boxSizing: 'border-box' }}>
+          <label htmlFor="villageName" className="text-[11px] font-medium text-[#666666] dark:text-zinc-400 mb-1.5 uppercase tracking-wider block">
             Select Village
           </label>
           <select
             id="villageName"
             value={formData.villageName}
             onChange={(e) => setFormData({ ...formData, villageName: e.target.value })}
-            className="w-full rounded-md border border-[#E6E6E6] dark:border-zinc-800 bg-white dark:bg-zinc-950 text-sm text-[#111111] dark:text-zinc-200 outline-none focus:border-[#7B61FF] focus:ring-2 focus:ring-[#7B61FF]/10 transition-all cursor-pointer"
-            style={{ padding: '12px 14px', boxSizing: 'border-box' }}
+            className="w-full max-w-[280px] rounded-md border border-[#E6E6E6] dark:border-zinc-800 bg-white dark:bg-zinc-950 text-sm text-[#111111] dark:text-zinc-200 outline-none focus:border-[#7B61FF] focus:ring-2 focus:ring-[#7B61FF]/10 transition-all cursor-pointer"
+            style={{ padding: '10px 12px', boxSizing: 'border-box' }}
           >
             {VILLAGES.map((v) => (
               <option key={v} value={v}>

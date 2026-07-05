@@ -41,14 +41,10 @@ class SQLiteCursorWrapper:
             val = self.last_inserted_id
             self.last_inserted_id = None
             return {'theme_id': val}
-        row = self.cursor.fetchone()
-        if row:
-            return dict(row)
-        return None
+        return self.cursor.fetchone()
 
     def fetchall(self):
-        rows = self.cursor.fetchall()
-        return [dict(r) for r in rows]
+        return self.cursor.fetchall()
 
     def __getattr__(self, name):
         return getattr(self.cursor, name)
@@ -73,12 +69,17 @@ class SQLiteConnectionWrapper:
 
 def get_db_connection():
     try:
-        conn = psycopg2.connect(DATABASE_URL)
+        # Avoid hanging on connection attempts to IPv6 database locally
+        is_deployed = os.getenv("RENDER") or os.getenv("VERCEL")
+        if "db.mezuyxethltywedukjrd.supabase.co" in DATABASE_URL and not is_deployed:
+            raise psycopg2.OperationalError("Bypassing IPv6 Supabase connection locally to prevent hang.")
+            
+        conn = psycopg2.connect(DATABASE_URL, connect_timeout=2)
         conn.autocommit = True
         return conn
     except Exception as e:
         print(f"Supabase Postgres connection failed ({e}). Falling back to local SQLite...")
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         sqlite_path = os.path.join(base_dir, "data", "peoples_priorities.db")
         conn = sqlite3.connect(sqlite_path)
         return SQLiteConnectionWrapper(conn)
