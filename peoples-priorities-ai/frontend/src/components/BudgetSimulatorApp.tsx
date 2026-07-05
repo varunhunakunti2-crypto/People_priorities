@@ -50,12 +50,12 @@ export default function BudgetSimulatorApp() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full items-start">
       {/* Left Column: Input Form */}
-      <div className="lg:col-span-4 lg:sticky lg:top-24 w-full">
+      <div className="lg:col-span-4 lg:sticky lg:top-24 w-full min-w-0">
         <BudgetInput onSimulate={handleSimulate} isLoading={isLoading} />
       </div>
       
       {/* Right Column: Results Dashboard */}
-      <div ref={resultsRef} className="lg:col-span-8 w-full">
+      <div ref={resultsRef} className="lg:col-span-8 w-full min-w-0">
         {(result || isLoading) ? (
           <SimulationResults 
             result={result} 
