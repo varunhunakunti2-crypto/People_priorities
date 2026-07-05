@@ -55,9 +55,17 @@ def seed_database_route():
             conn.autocommit = True
             cursor = conn.cursor(cursor_factory=RealDictCursor)
         except Exception as pg_err:
+            import traceback
+            import re
+            tb = traceback.format_exc()
+            masked_url = "None"
+            if DATABASE_URL:
+                masked_url = re.sub(r':([^@]+)@', ':****@', DATABASE_URL)
             return {
                 "status": "error", 
-                "message": f"Postgres connection failed: {str(pg_err)}. Please verify DATABASE_URL value in Vercel."
+                "message": f"Postgres connection failed: {str(pg_err)}",
+                "database_url_seen": masked_url,
+                "traceback": tb
             }
         
         # 1. Create tables if they do not exist
