@@ -9,8 +9,7 @@ sys.path.append(backend_dir)
 from database import get_db_connection, get_cursor, DATABASE_URL
 
 def main():
-    base_dir = os.path.dirname(backend_dir)
-    data_dir = os.path.join(base_dir, "data")
+    data_dir = os.path.join(backend_dir, "data")
 
     print(f"Connecting to Postgres database at: {DATABASE_URL}")
     conn = get_db_connection()
