@@ -38,6 +38,10 @@ app.add_middleware(
 # Include Authentication router
 app.include_router(auth_router)
 
+@app.get("/")
+def read_root():
+    return {"status": "healthy", "service": "peoples-priorities-api"}
+
 # Hardcoded dict of themes and keywords for classification fallback and label matching
 themes_keywords = {
     "School Infrastructure": ["school", "classroom", "toilet", "bench", "desk", "playground", "blackboard", "building", "library", "anganwadi", "kitchen", "teachers", "computer", "lab", "pathshala", "vidyalaya", "shauchalay", "chat", "स्कूल", "शिक्षिका", "शिक्षक", "कक्षा", "शौचालय", "डेस्क", "बेंच", "पुस्तकालय", "आंगनवाड़ी", "ब्लैकबोर्ड"],
