@@ -42,6 +42,140 @@ app.include_router(auth_router)
 def read_root():
     return {"status": "healthy", "service": "peoples-priorities-api"}
 
+@app.get("/admin/seed")
+def seed_database_route():
+    try:
+        from database import DATABASE_URL
+        conn = get_db_connection()
+        cursor = get_cursor(conn)
+        
+        # 1. Create tables if they do not exist
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS villages (
+            village_id TEXT PRIMARY KEY,
+            village_name TEXT NOT NULL,
+            subdistrict TEXT NOT NULL,
+            population INTEGER NOT NULL,
+            literacy_rate_pct REAL NOT NULL,
+            sc_st_pct REAL NOT NULL,
+            distance_to_town_km REAL NOT NULL,
+            has_primary_school TEXT NOT NULL,
+            has_secondary_school TEXT NOT NULL,
+            has_health_subcentre TEXT NOT NULL,
+            has_tap_water TEXT NOT NULL,
+            has_paved_road TEXT NOT NULL
+        );
+        """)
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS schools (
+            udise_code TEXT PRIMARY KEY,
+            village_id TEXT NOT NULL,
+            school_category TEXT NOT NULL,
+            total_enrollment INTEGER NOT NULL,
+            building_capacity INTEGER NOT NULL,
+            enrollment_capacity_ratio REAL NOT NULL,
+            pupil_teacher_ratio INTEGER NOT NULL,
+            functional_toilets INTEGER NOT NULL,
+            FOREIGN KEY (village_id) REFERENCES villages (village_id)
+        );
+        """)
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS existing_works (
+            work_id TEXT PRIMARY KEY,
+            village_id TEXT NOT NULL,
+            source TEXT NOT NULL,
+            work_type TEXT NOT NULL,
+            amount_lakh_inr REAL NOT NULL,
+            status TEXT NOT NULL,
+            year INTEGER NOT NULL,
+            FOREIGN KEY (village_id) REFERENCES villages (village_id)
+        );
+        """)
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS submissions (
+            submission_id TEXT PRIMARY KEY,
+            village_id TEXT NOT NULL,
+            raw_text TEXT NOT NULL,
+            channel TEXT NOT NULL,
+            language_detected TEXT NOT NULL,
+            submitted_on TEXT NOT NULL,
+            status TEXT NOT NULL,
+            FOREIGN KEY (village_id) REFERENCES villages (village_id)
+        );
+        """)
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS themes (
+            theme_id SERIAL PRIMARY KEY,
+            theme_label TEXT NOT NULL UNIQUE,
+            keyword_summary TEXT
+        );
+        """)
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS submission_themes (
+            submission_id TEXT NOT NULL,
+            theme_id INTEGER NOT NULL,
+            confidence_score REAL NOT NULL,
+            PRIMARY KEY (submission_id, theme_id),
+            FOREIGN KEY (submission_id) REFERENCES submissions (submission_id),
+            FOREIGN KEY (theme_id) REFERENCES themes (theme_id)
+        );
+        """)
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            role TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
+        
+        conn.commit()
+        
+        # 2. Seed data
+        # Check if villages table has data already to prevent duplicates
+        cursor.execute("SELECT COUNT(*) as count FROM villages;")
+        count_res = cursor.fetchone()
+        
+        # Support dict format (psycopg2 RealDictCursor) or tuple (standard cursor)
+        count = count_res['count'] if isinstance(count_res, dict) else count_res[0]
+        
+        if count == 0:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            data_dir = os.path.join(base_dir, "data")
+            
+            from sqlalchemy import create_engine
+            engine = create_engine(DATABASE_URL)
+            
+            csv_to_table = {
+                "villages.csv": "villages",
+                "schools.csv": "schools",
+                "existing_works.csv": "existing_works",
+                "submissions.csv": "submissions"
+            }
+            
+            for csv_file, table_name in csv_to_table.items():
+                csv_path = os.path.join(data_dir, csv_file)
+                if os.path.exists(csv_path):
+                    df = pd.read_csv(csv_path)
+                    df.to_sql(table_name, engine, if_exists="append", index=False)
+            
+            conn.close()
+            return {"status": "success", "message": "Database tables created and seeded successfully!"}
+        else:
+            conn.close()
+            return {"status": "success", "message": f"Database tables already exist. Row count in 'villages' is {count}."}
+            
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 # Hardcoded dict of themes and keywords for classification fallback and label matching
 themes_keywords = {
     "School Infrastructure": ["school", "classroom", "toilet", "bench", "desk", "playground", "blackboard", "building", "library", "anganwadi", "kitchen", "teachers", "computer", "lab", "pathshala", "vidyalaya", "shauchalay", "chat", "स्कूल", "शिक्षिका", "शिक्षक", "कक्षा", "शौचालय", "डेस्क", "बेंच", "पुस्तकालय", "आंगनवाड़ी", "ब्लैकबोर्ड"],
