@@ -207,6 +207,8 @@ def seed_database_route():
             "status": "success", 
             "message": f"Database tables verified. Seeded tables: {seeded_tables}. Classification: {classification_status}"
         }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
             
 @app.get("/admin/db-status")
 def db_status_route():
