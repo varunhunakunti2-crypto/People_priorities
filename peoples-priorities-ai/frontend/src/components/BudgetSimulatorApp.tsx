@@ -48,16 +48,30 @@ export default function BudgetSimulatorApp() {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full">
-      <BudgetInput onSimulate={handleSimulate} isLoading={isLoading} />
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full items-start">
+      {/* Left Column: Input Form */}
+      <div className="lg:col-span-4 lg:sticky lg:top-24 w-full">
+        <BudgetInput onSimulate={handleSimulate} isLoading={isLoading} />
+      </div>
       
-      <div ref={resultsRef} className="w-full">
-        {(result || isLoading) && (
+      {/* Right Column: Results Dashboard */}
+      <div ref={resultsRef} className="lg:col-span-8 w-full">
+        {(result || isLoading) ? (
           <SimulationResults 
             result={result} 
             isLoading={isLoading} 
             onExport={handleExport} 
           />
+        ) : (
+          <div className="bg-white p-8 rounded-xl border border-dashed border-gray-300 text-center flex flex-col items-center justify-center min-h-[350px]">
+            <div className="w-12 h-12 rounded-full bg-[#7B61FF]/10 flex items-center justify-center mb-4 text-[#7B61FF]">
+              <i className="ti ti-calculator text-[24px]"></i>
+            </div>
+            <h4 className="text-base font-bold text-gray-800 mb-1">Awaiting Simulation</h4>
+            <p className="text-sm text-gray-500 max-w-xs">
+              Enter a budget on the left and click "Generate sanction list" to see the dynamic priorities list.
+            </p>
+          </div>
         )}
       </div>
     </div>
