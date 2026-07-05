@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+rapidfuzz
+reportlab
+openpyxl
+psycopg2-binary
+python-dotenv
+sqlalchemy
