@@ -74,10 +74,13 @@ def get_db_connection():
         if "db.mezuyxethltywedukjrd.supabase.co" in DATABASE_URL and not is_deployed:
             raise psycopg2.OperationalError("Bypassing IPv6 Supabase connection locally to prevent hang.")
             
-        conn = psycopg2.connect(DATABASE_URL, connect_timeout=2)
+        conn = psycopg2.connect(DATABASE_URL, connect_timeout=10)
         conn.autocommit = True
         return conn
     except Exception as e:
+        is_deployed = os.getenv("RENDER") or os.getenv("VERCEL")
+        if is_deployed:
+            raise RuntimeError(f"Production database connection failed: {str(e)}")
         print(f"Supabase Postgres connection failed ({e}). Falling back to local SQLite...")
         base_dir = os.path.dirname(os.path.abspath(__file__))
         sqlite_path = os.path.join(base_dir, "data", "peoples_priorities.db")
