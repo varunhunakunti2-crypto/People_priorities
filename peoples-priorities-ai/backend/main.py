@@ -162,11 +162,16 @@ def seed_database_route():
         # Check if villages table has data already to prevent duplicates
         cursor.execute("SELECT COUNT(*) as count FROM villages;")
         count_res = cursor.fetchone()
+        villages_count = count_res['count'] if isinstance(count_res, dict) else count_res[0]
         
-        # Support dict format (psycopg2 RealDictCursor) or tuple (standard cursor)
-        count = count_res['count'] if isinstance(count_res, dict) else count_res[0]
+        cursor.execute("SELECT COUNT(*) as count FROM themes;")
+        themes_res = cursor.fetchone()
+        themes_count = themes_res['count'] if isinstance(themes_res, dict) else themes_res[0]
         
-        if count == 0:
+        seeded_tables = []
+        classification_status = ""
+        
+        if villages_count == 0:
             base_dir = os.path.dirname(os.path.abspath(__file__))
             data_dir = os.path.join(base_dir, "data")
             
@@ -185,12 +190,23 @@ def seed_database_route():
                 if os.path.exists(csv_path):
                     df = pd.read_csv(csv_path)
                     df.to_sql(table_name, engine, if_exists="append", index=False)
-            
-            conn.close()
-            return {"status": "success", "message": "Database tables created and seeded successfully!"}
+                    seeded_tables.append(table_name)
+        
+        if themes_count == 0:
+            try:
+                from nlp.cluster_themes import main as cluster_main
+                cluster_main()
+                classification_status = "Themes classified and seeded successfully!"
+            except Exception as cluster_err:
+                classification_status = f"Theme classification failed: {str(cluster_err)}"
         else:
-            conn.close()
-            return {"status": "success", "message": f"Database tables already exist. Row count in 'villages' is {count}."}
+            classification_status = "Themes already exist."
+            
+        conn.close()
+        return {
+            "status": "success", 
+            "message": f"Database tables verified. Seeded tables: {seeded_tables}. Classification: {classification_status}"
+        }
             
     except Exception as e:
         return {"status": "error", "message": str(e)}
