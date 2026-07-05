@@ -1,7 +1,7 @@
 import os
 import re
 import uuid
-import sqlite3
+from database import get_db_connection, get_cursor
 from datetime import datetime, timedelta
 from typing import Literal
 from fastapi import APIRouter, HTTPException, status, Header, Depends
@@ -26,9 +26,8 @@ def get_db_connection():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Database file not found. Ensure seeding scripts are run first."
         )
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    conn = get_db_connection()
+        return conn
 
 # Email validator helper
 EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
@@ -74,10 +73,10 @@ def register(body: RegisterRequest):
         )
     
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = get_cursor(conn)
     
     # Check if user already exists
-    cursor.execute("SELECT email FROM users WHERE email = ?", (body.email,))
+    cursor.execute("SELECT email FROM users WHERE email = %s", (body.email,))
     if cursor.fetchone():
         conn.close()
         raise HTTPException(
@@ -93,7 +92,7 @@ def register(body: RegisterRequest):
     # Insert user
     try:
         cursor.execute(
-            "INSERT INTO users (user_id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO users (user_id, name, email, password_hash, role) VALUES (%s, %s, %s, %s, %s)",
             (user_id, body.name, body.email, password_hash, body.role)
         )
         conn.commit()
@@ -116,10 +115,10 @@ def register(body: RegisterRequest):
 @router.post("/login", response_model=LoginResponse)
 def login(body: LoginRequest):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = get_cursor(conn)
     
     # Lookup user
-    cursor.execute("SELECT user_id, name, email, password_hash, role FROM users WHERE email = ?", (body.email,))
+    cursor.execute("SELECT user_id, name, email, password_hash, role FROM users WHERE email = %s", (body.email,))
     user = cursor.fetchone()
     conn.close()
     

@@ -1,19 +1,20 @@
 import os
-import sqlite3
 import pandas as pd
+from sqlalchemy import create_engine
+import sys
+
+# Add backend directory to path to import database
+backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(backend_dir)
+from database import get_db_connection, get_cursor, DATABASE_URL
 
 def main():
-    # Base path of peoples-priorities-ai project
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(backend_dir)
     data_dir = os.path.join(base_dir, "data")
-    db_path = os.path.join(data_dir, "peoples_priorities.db")
 
-    print(f"Connecting to/creating database at: {db_path}")
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    # Enable foreign keys support in SQLite
-    cursor.execute("PRAGMA foreign_keys = ON;")
+    print(f"Connecting to Postgres database at: {DATABASE_URL}")
+    conn = get_db_connection()
+    cursor = get_cursor(conn)
 
     # ==========================================
     # 1. Create Tables with Schema
@@ -84,7 +85,7 @@ def main():
     # themes table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS themes (
-        theme_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        theme_id SERIAL PRIMARY KEY,
         theme_label TEXT NOT NULL UNIQUE,
         keyword_summary TEXT
     );
@@ -134,7 +135,9 @@ def main():
     cursor.execute("DELETE FROM schools;")
     cursor.execute("DELETE FROM existing_works;")
     cursor.execute("DELETE FROM villages;")
-    conn.commit()
+    
+    # Use SQLAlchemy engine for pandas
+    engine = create_engine(DATABASE_URL)
 
     for csv_file, table_name in csv_to_table.items():
         csv_path = os.path.join(data_dir, csv_file)
@@ -147,7 +150,7 @@ def main():
         df = pd.read_csv(csv_path)
         
         # Append data to the table
-        df.to_sql(table_name, conn, if_exists="append", index=False)
+        df.to_sql(table_name, engine, if_exists="append", index=False)
 
     print("Data loading complete.")
 
@@ -158,7 +161,7 @@ def main():
     print("\n--- Current Table Row Counts ---")
     for table in tables:
         cursor.execute(f"SELECT COUNT(*) FROM {table};")
-        count = cursor.fetchone()[0]
+        count = cursor.fetchone()['count']
         print(f"Table '{table}': {count} rows")
 
     conn.close()

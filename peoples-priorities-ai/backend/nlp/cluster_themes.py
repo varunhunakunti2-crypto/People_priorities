@@ -1,6 +1,6 @@
 import os
 import re
-import sqlite3
+from database import get_db_connection, get_cursor
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -33,14 +33,14 @@ def clean_and_tokenize(text):
     return words
 
 def get_or_create_theme(conn, label, keywords):
-    cursor = conn.cursor()
-    cursor.execute("SELECT theme_id FROM themes WHERE theme_label = ?", (label,))
+    cursor = get_cursor(conn)
+    cursor.execute("SELECT theme_id FROM themes WHERE theme_label = %s", (label,))
     row = cursor.fetchone()
     if row:
         return row[0]
-    cursor.execute("INSERT INTO themes (theme_label, keyword_summary) VALUES (?, ?)", (label, keywords))
+    cursor.execute("INSERT INTO themes (theme_label, keyword_summary) VALUES (%s, %s) RETURNING theme_id", (label, keywords))
     conn.commit()
-    return cursor.lastrowid
+    return cursor.fetchone()['theme_id']
 
 def main():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,8 +51,8 @@ def main():
         return
 
     print("Connecting to database...")
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = get_cursor(conn)
 
     # Load submissions
     df_subs = pd.read_sql_query("SELECT submission_id, raw_text, village_id FROM submissions", conn)
@@ -128,7 +128,7 @@ def main():
         for sub_id, theme, confidence in fallback_mappings:
             theme_id = theme_ids[theme]
             cursor.execute(
-                "INSERT INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (?, ?, ?)",
+                "INSERT INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (%s, %s, %s)",
                 (sub_id, theme_id, confidence)
             )
         conn.commit()
@@ -185,7 +185,7 @@ def main():
                 confidence = float(probabilities[i])
 
             cursor.execute(
-                "INSERT INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (?, ?, ?)",
+                "INSERT INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (%s, %s, %s)",
                 (sub_id, theme_id, confidence)
             )
         conn.commit()

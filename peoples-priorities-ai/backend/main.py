@@ -1,6 +1,6 @@
 import os
 import re
-import sqlite3
+from database import get_db_connection, get_cursor
 from io import BytesIO
 from datetime import datetime
 from typing import List, Optional
@@ -16,8 +16,8 @@ from rapidfuzz import process, fuzz
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Import ranking logic
-from backend.ranking import calculate_rankings, get_work_theme
-from backend.auth import router as auth_router
+from ranking import calculate_rankings, get_work_theme
+from auth import router as auth_router
 
 # Initialize FastAPI App
 app = FastAPI(
@@ -73,9 +73,8 @@ def get_db_connection():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Database file not found. Ensure seeding scripts are run first."
         )
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    conn = get_db_connection()
+        return conn
 
 def clean_and_tokenize(text):
     text = text.lower()
@@ -83,14 +82,14 @@ def clean_and_tokenize(text):
     return words
 
 def get_or_create_theme(conn, label, keywords):
-    cursor = conn.cursor()
-    cursor.execute("SELECT theme_id FROM themes WHERE theme_label = ?", (label,))
+    cursor = get_cursor(conn)
+    cursor.execute("SELECT theme_id FROM themes WHERE theme_label = %s", (label,))
     row = cursor.fetchone()
     if row:
         return row['theme_id']
-    cursor.execute("INSERT INTO themes (theme_label, keyword_summary) VALUES (?, ?)", (label, keywords))
+    cursor.execute("INSERT INTO themes (theme_label, keyword_summary) VALUES (%s, %s) RETURNING theme_id", (label, keywords))
     conn.commit()
-    return cursor.lastrowid
+    return cursor.fetchone()['theme_id']
 
 # -------------------------------------------------------------------------
 # Pydantic Schemas
@@ -110,6 +109,9 @@ class BudgetSimulationRequest(BaseModel):
     theme_filter: Optional[str] = Field(None, description="Optional theme_id or theme_label to restrict to one theme only")
     village_filter: Optional[str] = Field(None, description="Optional village_id or village_name to restrict to one village only")
 
+class BudgetSimulationExportRequest(BudgetSimulationRequest):
+    format: str = Field(..., pattern="^(pdf|xlsx)$", description="Format to export: pdf or xlsx")
+
 # -------------------------------------------------------------------------
 # Endpoints
 # -------------------------------------------------------------------------
@@ -121,7 +123,7 @@ def health_check():
 @app.post("/submissions", status_code=status.HTTP_201_CREATED)
 def create_submission(payload: SubmissionCreate):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = get_cursor(conn)
     
     try:
         # Load villages for fuzzy matching
@@ -166,7 +168,7 @@ def create_submission(payload: SubmissionCreate):
         # Insert submission
         cursor.execute("""
             INSERT INTO submissions (submission_id, village_id, raw_text, channel, language_detected, submitted_on, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             new_id,
             village_id,
@@ -191,7 +193,7 @@ def create_submission(payload: SubmissionCreate):
 @app.post("/submissions/process")
 def process_submissions(payload: ProcessSubmissionsRequest):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = get_cursor(conn)
     
     try:
         # Determine target IDs to process
@@ -262,10 +264,10 @@ def process_submissions(payload: ProcessSubmissionsRequest):
                 theme_id = theme_ids[best_theme]
                 
                 cursor.execute(
-                    "INSERT OR REPLACE INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (?, ?, ?)",
+                    "INSERT OR REPLACE INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (%s, %s, %s)",
                     (sub_id, theme_id, confidence)
                 )
-                cursor.execute("UPDATE submissions SET status = 'processed' WHERE submission_id = ?", (sub_id,))
+                cursor.execute("UPDATE submissions SET status = 'processed' WHERE submission_id = %s", (sub_id,))
                 theme_assignments.append({"submission_id": sub_id, "theme_label": best_theme})
         else:
             # TF-IDF for dynamic theme mapping
@@ -312,14 +314,14 @@ def process_submissions(payload: ProcessSubmissionsRequest):
                 else:
                     theme_id = cluster_theme_ids[label]
                     confidence = float(probabilities[i])
-                    cursor.execute("SELECT theme_label FROM themes WHERE theme_id = ?", (theme_id,))
+                    cursor.execute("SELECT theme_label FROM themes WHERE theme_id = %s", (theme_id,))
                     theme_label = cursor.fetchone()['theme_label']
                     
                 cursor.execute(
-                    "INSERT OR REPLACE INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (?, ?, ?)",
+                    "INSERT OR REPLACE INTO submission_themes (submission_id, theme_id, confidence_score) VALUES (%s, %s, %s)",
                     (sub_id, theme_id, confidence)
                 )
-                cursor.execute("UPDATE submissions SET status = 'processed' WHERE submission_id = ?", (sub_id,))
+                cursor.execute("UPDATE submissions SET status = 'processed' WHERE submission_id = %s", (sub_id,))
                 theme_assignments.append({"submission_id": sub_id, "theme_label": theme_label})
                 
         conn.commit()
@@ -372,7 +374,7 @@ def simulate_budget(payload: BudgetSimulationRequest):
         
         # 2. Look up estimated costs from existing_works or defaults
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = get_cursor(conn)
         cursor.execute("SELECT village_id, work_type, amount_lakh_inr FROM existing_works")
         works_rows = cursor.fetchall()
         conn.close()
@@ -480,11 +482,11 @@ def simulate_budget(payload: BudgetSimulationRequest):
 @app.get("/villages/{village_id}")
 def get_village(village_id: str):
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = get_cursor(conn)
     
     try:
         # Fetch village info
-        cursor.execute("SELECT * FROM villages WHERE village_id = ?", (village_id,))
+        cursor.execute("SELECT * FROM villages WHERE village_id = %s", (village_id,))
         village_row = cursor.fetchone()
         if not village_row:
             raise HTTPException(status_code=404, detail="Village not found")
@@ -492,13 +494,13 @@ def get_village(village_id: str):
         village = dict(village_row)
         
         # Fetch nested data
-        cursor.execute("SELECT * FROM submissions WHERE village_id = ?", (village_id,))
+        cursor.execute("SELECT * FROM submissions WHERE village_id = %s", (village_id,))
         village['submissions'] = [dict(r) for r in cursor.fetchall()]
         
-        cursor.execute("SELECT * FROM existing_works WHERE village_id = ?", (village_id,))
+        cursor.execute("SELECT * FROM existing_works WHERE village_id = %s", (village_id,))
         village['existing_works'] = [dict(r) for r in cursor.fetchall()]
         
-        cursor.execute("SELECT * FROM schools WHERE village_id = ?", (village_id,))
+        cursor.execute("SELECT * FROM schools WHERE village_id = %s", (village_id,))
         village['schools'] = [dict(r) for r in cursor.fetchall()]
         
         return village
@@ -701,3 +703,240 @@ def export_rankings(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Export failed: {e}")
+
+# -------------------------------------------------------------------------
+# Budget Simulation Export Helpers & Endpoint
+# -------------------------------------------------------------------------
+def create_budget_xlsx_export(sim_result):
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    
+    wb = Workbook()
+    
+    # Sheet 1 "Sanction List"
+    ws1 = wb.active
+    ws1.title = "Sanction List"
+    headers1 = ["Rank", "Village", "Development Work", "Estimated Cost (₹ Lakhs)", "Priority Score", "Citizen Submissions"]
+    ws1.append(headers1)
+    
+    header_fill = PatternFill(start_color="1F497D", end_color="1F497D", fill_type="solid")
+    header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+    thin_border = Border(left=Side(style='thin', color='D3D3D3'), right=Side(style='thin', color='D3D3D3'), top=Side(style='thin', color='D3D3D3'), bottom=Side(style='thin', color='D3D3D3'))
+    
+    for col_idx in range(1, len(headers1) + 1):
+        cell = ws1.cell(row=1, column=col_idx)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+    alt_fill = PatternFill(start_color="F2F5F8", end_color="F2F5F8", fill_type="solid")
+    
+    for i, work in enumerate(sim_result["selected_works"]):
+        row_data = [
+            work['rank'],
+            work['village_name'],
+            work['theme_label'],
+            work['estimated_cost_lakh'],
+            work['priority_score'],
+            work['submission_count']
+        ]
+        ws1.append(row_data)
+        row_idx = i + 2
+        for col_idx in range(1, len(headers1) + 1):
+            cell = ws1.cell(row=row_idx, column=col_idx)
+            cell.border = thin_border
+            if i % 2 != 0:
+                cell.fill = alt_fill
+                
+    for col in ws1.columns:
+        max_len = max(len(str(cell.value or '')) for cell in col)
+        col_letter = col[0].column_letter
+        ws1.column_dimensions[col_letter].width = max(max_len + 3, 12)
+        
+    # Sheet 2 "Summary"
+    ws2 = wb.create_sheet(title="Summary")
+    summary_data = [
+        ("Total Budget (₹ Lakhs)", sim_result["total_budget_lakh"]),
+        ("Total Allocated (₹ Lakhs)", sim_result["total_allocated_lakh"]),
+        ("Remaining Budget (₹ Lakhs)", sim_result["remaining_lakh"]),
+        ("Utilization %", sim_result["utilization_pct"]),
+        ("Number of Works Selected", len(sim_result["selected_works"])),
+        ("Date Generated", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    ]
+    for k, v in summary_data:
+        ws2.append([k, v])
+    for row in ws2.iter_rows():
+        row[0].font = Font(bold=True)
+    ws2.column_dimensions['A'].width = 30
+    ws2.column_dimensions['B'].width = 20
+        
+    # Sheet 3 "Excluded Works"
+    ws3 = wb.create_sheet(title="Excluded Works")
+    headers3 = ["Rank", "Village", "Development Work", "Estimated Cost (₹ Lakhs)", "Priority Score", "Reason"]
+    ws3.append(headers3)
+    for col_idx in range(1, len(headers3) + 1):
+        cell = ws3.cell(row=1, column=col_idx)
+        cell.fill = header_fill
+        cell.font = header_font
+        
+    for i, work in enumerate(sim_result["excluded_works"]):
+        row_data = [
+            work['rank'],
+            work['village_name'],
+            work['theme_label'],
+            work['estimated_cost_lakh'],
+            work['priority_score'],
+            work.get('reason', '')
+        ]
+        ws3.append(row_data)
+    for col in ws3.columns:
+        max_len = max(len(str(cell.value or '')) for cell in col)
+        col_letter = col[0].column_letter
+        ws3.column_dimensions[col_letter].width = max(max_len + 3, 12)
+        
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+def create_budget_pdf_export(sim_result):
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    
+    buffer = BytesIO()
+    
+    def add_page_border(canvas, doc):
+        canvas.saveState()
+        canvas.setStrokeColor(colors.HexColor('#1F497D'))
+        canvas.setLineWidth(2)
+        canvas.rect(18, 18, letter[0] - 36, letter[1] - 36)
+        canvas.restoreState()
+        
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=54,
+        bottomMargin=54
+    )
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        leading=20,
+        alignment=1, # Center
+        textColor=colors.HexColor('#1F497D'),
+        spaceAfter=6
+    )
+    subtitle_style = ParagraphStyle(
+        'SubtitleStyle',
+        parent=styles['Heading2'],
+        fontSize=10,
+        alignment=1, # Center
+        textColor=colors.HexColor('#555555'),
+        spaceAfter=12
+    )
+    footer_style = ParagraphStyle(
+        'FooterStyle',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=14,
+        spaceBefore=20,
+        alignment=0
+    )
+    table_header_style = ParagraphStyle(
+        'TableHeader',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        alignment=1
+    )
+    table_cell_style = ParagraphStyle(
+        'TableCell',
+        parent=styles['Normal'],
+        fontSize=8,
+        alignment=1
+    )
+    
+    elements = []
+    
+    elements.append(Paragraph("MPLADS Development Priority Sanction List", title_style))
+    elements.append(Paragraph(f"District: Simulated District | Total Budget: ₹ {sim_result['total_budget_lakh']} Lakhs | Date: {datetime.now().strftime('%Y-%m-%d')}", subtitle_style))
+    elements.append(Spacer(1, 10))
+    
+    table_data = [[
+        Paragraph("Rank", table_header_style),
+        Paragraph("Village", table_header_style),
+        Paragraph("Development Work", table_header_style),
+        Paragraph("Estimated Cost (₹ Lakhs)", table_header_style),
+        Paragraph("Priority Score", table_header_style),
+        Paragraph("Citizen Submissions", table_header_style)
+    ]]
+    
+    for r in sim_result['selected_works']:
+        table_data.append([
+            Paragraph(str(r['rank']), table_cell_style),
+            Paragraph(r['village_name'], table_cell_style),
+            Paragraph(r['theme_label'], table_cell_style),
+            Paragraph(str(r['estimated_cost_lakh']), table_cell_style),
+            Paragraph(f"{r['priority_score']:.2f}", table_cell_style),
+            Paragraph(str(r['submission_count']), table_cell_style)
+        ])
+        
+    col_widths = [40, 100, 150, 90, 70, 90]
+    
+    t = Table(table_data, colWidths=col_widths, repeatRows=1)
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1F497D')),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#D3D3D3')),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F2F5F8')])
+    ]))
+    
+    elements.append(t)
+    
+    footer_text = f"<b>Total Allocated:</b> ₹ {sim_result['total_allocated_lakh']} Lakhs<br/>"
+    footer_text += f"<b>Remaining Budget:</b> ₹ {sim_result['remaining_lakh']} Lakhs<br/><br/>"
+    footer_text += "<i>Generated by People's Priorities AI</i>"
+    elements.append(Paragraph(footer_text, footer_style))
+    
+    doc.build(elements, onFirstPage=add_page_border, onLaterPages=add_page_border)
+    
+    buffer.seek(0)
+    return buffer
+
+@app.post("/simulate-budget/export")
+def simulate_budget_export_endpoint(payload: BudgetSimulationExportRequest):
+    try:
+        base_payload = BudgetSimulationRequest(
+            budget_lakh_inr=payload.budget_lakh_inr,
+            theme_filter=payload.theme_filter,
+            village_filter=payload.village_filter
+        )
+        sim_result = simulate_budget(base_payload)
+        
+        if payload.format == "xlsx":
+            buffer = create_budget_xlsx_export(sim_result)
+            filename = "sanction_list.xlsx"
+            media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        else:
+            buffer = create_budget_pdf_export(sim_result)
+            filename = "sanction_list.pdf"
+            media_type = "application/pdf"
+            
+        return StreamingResponse(
+            buffer,
+            media_type=media_type,
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Budget Export failed: {e}")

@@ -1,5 +1,5 @@
 import os
-import sqlite3
+from database import get_db_connection, get_cursor
 import pandas as pd
 import numpy as np
 
@@ -46,7 +46,7 @@ def calculate_rankings(weights: dict = None):
     if not os.path.exists(db_path):
         raise FileNotFoundError(f"Database not found at '{db_path}'. Make sure you run seed/load scripts first.")
 
-    conn = sqlite3.connect(db_path)
+    conn = get_db_connection()
     
     # 1. Load raw data tables into DataFrames
     df_villages = pd.read_sql_query("SELECT * FROM villages", conn)
