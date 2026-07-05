@@ -1,0 +1,521 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NavBar from '../../components/NavBar';
+import { getVillageDetail } from '../../lib/api';
+import type { VillageDetail } from '../../lib/api';
+
+export function getStaticPaths() {
+  return [
+    { params: { villageId: 'VIL001' } },
+    { params: { villageId: 'VIL002' } },
+    { params: { villageId: 'VIL003' } },
+    { params: { villageId: 'VIL004' } },
+    { params: { villageId: 'VIL005' } },
+    { params: { villageId: 'VIL006' } },
+    { params: { villageId: 'VIL007' } },
+    { params: { villageId: 'VIL008' } },
+    { params: { villageId: 'VIL009' } },
+    { params: { villageId: 'VIL010' } },
+    { params: { villageId: 'VIL011' } },
+    { params: { villageId: 'VIL012' } },
+    { params: { villageId: 'VIL013' } },
+    { params: { villageId: 'VIL014' } },
+    { params: { villageId: 'VIL015' } },
+    { params: { villageId: 'VIL016' } },
+    { params: { villageId: 'VIL017' } },
+    { params: { villageId: 'VIL018' } },
+    { params: { villageId: 'VIL019' } },
+    { params: { villageId: 'VIL020' } },
+  ];
+}
+
+const { villageId } = Astro.params;
+
+if (!villageId) {
+  return Astro.redirect('/');
+}
+
+let village: VillageDetail | null = null;
+let fetchError: string | null = null;
+
+try {
+  village = await getVillageDetail(villageId);
+} catch (err: any) {
+  fetchError = err.message || 'Village not found';
+}
+
+const villageName = village?.village_name ?? 'Village Detail';
+const subdistrict = village?.subdistrict ?? '';
+const population = village?.population ?? 0;
+const literacyRate = village?.literacy_rate_pct ?? 0;
+const distanceToTown = village?.distance_to_town_km ?? 0;
+const scStPct = village?.sc_st_pct ?? 0;
+const schools = village?.schools ?? [];
+const existingWorks = village?.existing_works ?? [];
+const submissions = village?.submissions ?? [];
+const showVillage = village !== null && !fetchError;
+
+function statusBadge(status: string) {
+  const s = (status ?? '').toLowerCase();
+  if (s === 'completed') {
+    return 'badge-status-completed';
+  }
+  if (s === 'in progress' || s === 'in_progress') {
+    return 'badge-status-progress';
+  }
+  if (s === 'proposed') {
+    return 'badge-status-proposed';
+  }
+  return 'badge-status-default';
+}
+
+function formatStatus(status: string) {
+  const s = (status ?? '').toLowerCase();
+  if (s === 'completed') return 'Completed';
+  if (s === 'in progress' || s === 'in_progress') return 'In Progress';
+  return (status ?? '').charAt(0).toUpperCase() + (status ?? '').slice(1).replace(/_/g, ' ');
+}
+
+function formatChannel(channel: string) {
+  const c = (channel ?? '').toLowerCase();
+  if (c === 'grievance_portal') return 'Grievance Portal';
+  if (c === 'web_form') return 'Web Form';
+  if (c === 'sms') return 'SMS';
+  if (c === 'whatsapp') return 'WhatsApp';
+  if (c === 'public_meeting') return 'Public Meeting';
+  return (channel ?? '').charAt(0).toUpperCase() + (channel ?? '').slice(1).replace(/_/g, ' ');
+}
+
+function channelBadge(channel: string) {
+  const c = (channel ?? '').toLowerCase();
+  if (c === 'whatsapp') return 'badge-whatsapp';
+  if (c === 'call' || c === 'ivr') return 'badge-default';
+  if (c === 'web_form' || c === 'web') return 'badge-web';
+  if (c === 'sms') return 'badge-sms';
+  if (c === 'grievance_portal') return 'badge-grievance';
+  if (c === 'public_meeting') return 'badge-meeting';
+  return 'badge-default';
+}
+
+function channelIcon(channel: string) {
+  const c = (channel ?? '').toLowerCase();
+  if (c === 'whatsapp') return '💬';
+  if (c === 'call' || c === 'ivr') return '📞';
+  if (c === 'web_form' || c === 'web') return '🌐';
+  if (c === 'sms') return '📱';
+  if (c === 'grievance_portal') return '🏛️';
+  if (c === 'public_meeting') return '🤝';
+  return '📝';
+}
+
+function formatDate(dateStr: string) {
+  try {
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  } catch {
+    return dateStr ?? '';
+  }
+}
+
+function progressBarPercent(enrolled: number, capacity: number) {
+  if (!capacity || capacity <= 0) return 100;
+  return Math.min(100, Math.round((enrolled / capacity) * 100));
+}
+
+const infrastructure = [
+  { label: 'Primary School', value: village?.has_primary_school ?? 'No' },
+  { label: 'Secondary School', value: village?.has_secondary_school ?? 'No' },
+  { label: 'Health Subcentre', value: village?.has_health_subcentre ?? 'No' },
+  { label: 'Tap Water', value: village?.has_tap_water ?? 'No' },
+  { label: 'Paved Road', value: village?.has_paved_road ?? 'No' },
+];
+---
+
+<Layout title={showVillage ? `${villageName} — Village Detail` : 'Village Not Found'}>
+  <NavBar client:load />
+  <div id="app-wrapper" class="min-h-screen bg-[#fafafa] dark:bg-zinc-950 font-sans pb-12 max-w-[100vw] overflow-x-hidden opacity-0 transition-opacity duration-150">
+
+    {/* Header */}
+    <header class="bg-white dark:bg-zinc-900 border-b border-[#ebebeb] dark:border-zinc-800 h-[64px] flex items-center">
+      <div class="site-pad w-full flex items-center justify-between gap-4 box-border">
+        <div class="flex items-center gap-6 min-w-0">
+          <a
+            href="/"
+            class="flex items-center gap-1 text-[14px] font-medium text-[#0070f3] hover:text-[#0761d1] transition-colors cursor-pointer select-none"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Back to Rankings
+          </a>
+          <h1 class="text-[20px] font-semibold text-[#171717] dark:text-zinc-50 truncate select-none">
+            {villageName}
+          </h1>
+        </div>
+
+        <div class="flex items-center gap-4 shrink-0">
+
+          {showVillage && (
+            <div class="flex items-center gap-2.5 shrink-0">
+              <button 
+                id="export-pdf" 
+                data-village-id={villageId}
+                type="button" 
+                class="flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-[100px] bg-white hover:bg-[#fafafa] border border-[#ebebeb] text-[#171717] dark:text-zinc-300 transition-colors cursor-pointer select-none"
+              >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Export PDF
+            </button>
+            <button 
+              id="export-excel" 
+              data-village-id={villageId}
+              type="button" 
+              class="flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-[100px] bg-white hover:bg-[#fafafa] border border-[#ebebeb] text-[#171717] dark:text-zinc-300 transition-colors cursor-pointer select-none"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Export Excel
+            </button>
+          </div>
+        )}
+        </div>
+      </div>
+    </header>
+
+    <main class="site-pad w-full py-8 max-w-full box-border">
+
+      {/* Not-found state */}
+      {(!showVillage) && (
+        <div class="bg-white dark:bg-zinc-900 border border-[#ebebeb] dark:border-zinc-800 rounded-xl p-12 shadow-sm flex flex-col items-center gap-4 text-center">
+          <div class="w-14 h-14 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-zinc-400">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Village not found</h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 max-w-md">
+            We couldn't find details for village <span class="font-mono font-bold text-zinc-700 dark:text-zinc-300">{villageId}</span>.
+            It may not exist in the dataset or the backend API may be unreachable.
+          </p>
+          {fetchError && (
+            <p class="text-xs text-red-500 dark:text-red-400 font-mono max-w-lg break-all">{fetchError}</p>
+          )}
+          <a
+            href="/"
+            class="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-zinc-400"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Return to dashboard
+          </a>
+        </div>
+      )}
+
+      {/* Village detail grid */}
+      {showVillage && (
+        <div class="flex flex-col lg:flex-row gap-6 items-start w-full">
+          
+          {/* Left Column (Sidebar) */}
+          <div class="w-full lg:w-[320px] shrink-0 flex flex-col gap-6">
+            
+            {/* Village Profile Stats Card */}
+            <div class="bg-white dark:bg-zinc-900 border border-[#ebebeb] dark:border-zinc-800 rounded-xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col gap-4">
+              <h3 class="text-[12px] font-semibold text-[#888888] uppercase tracking-wider font-mono">Village Profile</h3>
+              <div class="flex flex-col gap-3">
+                <div class="flex justify-between items-baseline py-1">
+                  <span class="text-[12px] text-[#4d4d4d] font-medium font-mono">Population</span>
+                  <span class="text-[14px] font-bold text-[#171717] dark:text-zinc-50 tabular-nums">
+                    {population.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <div class="w-full h-px bg-[#ebebeb] dark:bg-zinc-800"></div>
+                <div class="flex justify-between items-baseline py-1">
+                  <span class="text-[12px] text-[#4d4d4d] font-medium font-mono">Literacy Rate</span>
+                  <span class="text-[14px] font-bold text-[#171717] dark:text-zinc-50 tabular-nums">
+                    {literacyRate.toFixed(1)}%
+                  </span>
+                </div>
+                <div class="w-full h-px bg-[#ebebeb] dark:bg-zinc-800"></div>
+                <div class="flex justify-between items-baseline py-1">
+                  <span class="text-[12px] text-[#4d4d4d] font-medium font-mono">Distance to Town</span>
+                  <span class="text-[14px] font-bold text-[#171717] dark:text-zinc-50 tabular-nums">
+                    {distanceToTown} km
+                  </span>
+                </div>
+                <div class="w-full h-px bg-[#ebebeb] dark:bg-zinc-800"></div>
+                <div class="flex justify-between items-baseline py-1">
+                  <span class="text-[12px] text-[#4d4d4d] font-medium font-mono">SC/ST Population</span>
+                  <span class="text-[14px] font-bold text-[#171717] dark:text-zinc-50 tabular-nums">
+                    {scStPct.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Infrastructure Checklist Card */}
+            <div class="bg-white dark:bg-zinc-900 border border-[#ebebeb] dark:border-zinc-800 rounded-xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col gap-4">
+              <h3 class="text-[12px] font-semibold text-[#888888] uppercase tracking-wider font-mono">Infrastructure & Facilities</h3>
+              <ul class="flex flex-col">
+                {infrastructure.map((item, idx) => (
+                  <li class:list={[
+                    "flex items-center justify-between h-[44px] px-3 rounded-[4px] border-b border-[#ebebeb]/60 dark:border-zinc-800/60 last:border-b-0",
+                    idx % 2 === 0 ? "bg-[#fafafa] dark:bg-zinc-800/40" : "bg-transparent"
+                  ]}>
+                    <span class="text-[12px] text-[#171717] dark:text-zinc-300 font-medium truncate mr-2 font-mono">{item.label}</span>
+                    <span
+                      class:list={[
+                        'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] text-[11px] font-semibold select-none whitespace-nowrap shrink-0',
+                        item.value === 'Yes'
+                          ? 'badge-status-completed'
+                          : 'badge-status-missing'
+                      ]}
+                    >
+                      {item.value === 'Yes' ? 'Available' : 'Missing'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Existing Works / MPLADS Card */}
+            <div class="bg-white dark:bg-zinc-900 border border-[#ebebeb] dark:border-zinc-800 rounded-xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col gap-4">
+              <h3 class="text-[12px] font-semibold text-[#888888] uppercase tracking-wider font-mono">Existing Works</h3>
+              {existingWorks.length > 0 ? (
+                <div class="flex flex-col gap-3">
+                  {existingWorks.map((work) => (
+                    <div class="border-b border-[#ebebeb] dark:border-zinc-850 last:border-b-0 pb-3 last:pb-0 flex flex-col gap-2 relative">
+                      <div class="flex justify-between items-start gap-3">
+                        <h4 class="text-[12px] font-semibold text-[#171717] dark:text-zinc-100 capitalize leading-snug">
+                          {(work.work_type ?? '').replace(/_/g, ' ')}
+                        </h4>
+                        <span class:list={[
+                          'inline-flex items-center px-2 py-0.5 rounded-[4px] text-[11px] font-semibold select-none border-none shrink-0 capitalize',
+                          statusBadge(work.status)
+                        ]}>
+                          {formatStatus(work.status)}
+                        </span>
+                      </div>
+                      
+                      <div class="flex items-center justify-between gap-2 text-[11px]">
+                        <div class="flex items-center gap-1.5 font-mono">
+                          <span class="bg-[#f5f5f5] dark:bg-zinc-800 text-[#4d4d4d] dark:text-zinc-400 px-2 py-0.5 rounded-[4px] font-medium text-[11px]">
+                            {work.source ?? work.scheme_program}
+                          </span>
+                          <span class="text-[#888888]">
+                            {work.year}
+                          </span>
+                        </div>
+                        <div class="text-right font-semibold text-[#171717] dark:text-zinc-100 text-[13px] tabular-nums font-mono">
+                          ₹{(work.amount_lakh_inr ?? 0).toLocaleString('en-IN')}L
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div class="text-[12px] text-[#888888] py-6 text-center border border-dashed border-[#ebebeb] dark:border-zinc-800 rounded-xl font-medium select-none font-mono">
+                  No works recorded
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Right Column (Main Content) */}
+          <div class="flex-1 min-w-0 flex flex-col gap-6">
+            
+            {/* ── Citizen Submissions ──────────────────────────────── */}
+            {submissions.length > 0 && (
+              <section class="bg-white dark:bg-zinc-900 border border-[#ebebeb] dark:border-zinc-800 rounded-xl p-5 shadow-sm">
+                <h2 class="text-[12px] font-semibold text-[#888888] uppercase tracking-wider mb-4 font-mono">
+                  Citizen Submissions ({submissions.length} total)
+                </h2>
+                <div class="flex flex-col divide-y divide-[#ebebeb] dark:divide-zinc-800">
+                  {submissions.map((sub) => (
+                    <div class="py-4 first:pt-0 last:pb-0 flex flex-col gap-3">
+                      <p class="text-[14px] text-[#171717] dark:text-zinc-200 leading-relaxed font-normal">
+                        “{sub.raw_text}”
+                      </p>
+                      <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                        <div class="flex items-center gap-2">
+                          <span class:list={[
+                            'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] text-[11px] font-semibold select-none border-none',
+                            channelBadge(sub.channel)
+                          ]}>
+                            <span>{channelIcon(sub.channel)}</span>
+                            {formatChannel(sub.channel)}
+                          </span>
+                          <span class="text-[12px] text-[#888888] dark:text-zinc-500 font-mono">
+                            {formatDate(sub.submitted_on)}
+                          </span>
+                        </div>
+                        <span class="text-[11px] text-[#888888] dark:text-zinc-500 font-mono uppercase tracking-wider">
+                          {sub.language_detected}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* ── Schools ──────────────────────────────────────────── */}
+            {schools.length > 0 && (
+              <section class="bg-white dark:bg-zinc-900 border border-[#ebebeb] dark:border-zinc-800 rounded-xl p-5 shadow-sm min-w-0 max-w-full">
+                <h2 class="text-[12px] font-semibold text-[#888888] uppercase tracking-wider mb-4 font-mono">Schools & Education</h2>
+                <div class="flex flex-col gap-4 min-w-0 max-w-full">
+                  {schools.map((school) => {
+                    const capacity = school.building_capacity ?? school.capacity ?? 0;
+                    const enrolled = school.total_enrollment ?? 0;
+                    const pct = progressBarPercent(enrolled, capacity);
+                    const ratio = capacity > 0 ? enrolled / capacity : 0;
+                    const isOverCapacity = enrolled >= capacity;
+                    const schoolLabel = school.school_category
+                      ? school.school_category.replace(/_/g, ' ')
+                      : 'School';
+                    const udiseCode = school.udise_code ?? school.school_id ?? '';
+                    return (
+                      <div class="bg-[#fafafa] dark:bg-zinc-950/40 border border-[#ebebeb] dark:border-zinc-800/80 rounded-xl p-5 box-border min-w-0 max-w-full flex flex-col gap-4">
+                        {/* Card header */}
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 min-w-0">
+                          <div class="min-w-0">
+                            <h3 class="text-[16px] font-semibold text-[#171717] dark:text-zinc-100 capitalize truncate min-w-0">{schoolLabel}</h3>
+                            {udiseCode && (
+                              <p class="text-[12px] text-[#888888] dark:text-zinc-500 font-mono mt-0.5 truncate min-w-0">UDISE: {udiseCode}</p>
+                            )}
+                          </div>
+                          <div class="flex items-center gap-2 shrink-0 min-w-0">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] text-[11px] font-semibold badge-status-default font-mono">
+                              PTR: {school.pupil_teacher_ratio}
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] text-[11px] font-semibold badge-status-default font-mono">
+                              Toilets: {school.functional_toilets}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Enrollment progress */}
+                        <div class="space-y-2 min-w-0 max-w-full font-mono">
+                          <div class="flex items-baseline justify-between min-w-0 max-w-full gap-2">
+                            <span class="text-[12px] font-medium text-[#4d4d4d] dark:text-zinc-400 min-w-0 truncate">Enrollment</span>
+                            <span class="text-[12px] font-medium text-[#171717] dark:text-zinc-300 shrink-0 whitespace-nowrap">
+                              <span class:list={[
+                                'font-semibold',
+                                isOverCapacity ? 'text-[#ee0000]' : 'text-[#171717] dark:text-zinc-100'
+                              ]}>
+                                {enrolled.toLocaleString('en-IN')}
+                              </span>
+                              <span class="text-[#888888]"> / {capacity.toLocaleString('en-IN')} seats</span>
+                              <span class="ml-2 text-[#0070f3] font-semibold">({pct}%)</span>
+                            </span>
+                          </div>
+                          <div class="h-1 bg-[#ebebeb] dark:bg-zinc-800 rounded-[2px] overflow-hidden min-w-0 max-w-full">
+                            <div
+                              class:list={[
+                                'h-full rounded-[2px] transition-all max-w-full',
+                                isOverCapacity
+                                  ? 'bar-red'
+                                  : pct >= 80
+                                    ? 'bar-amber'
+                                    : 'bar-green'
+                              ]}
+                              style={{ width: `${Math.min(100, pct)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        {/* Over-capacity callout */}
+                        {isOverCapacity && (
+                          <div class="inline-flex self-start items-center gap-2 px-2 py-0.5 rounded-[4px] text-[11px] font-semibold badge-status-missing font-mono">
+                            <span class="text-[#ee0000]">
+                              {enrolled === capacity ? "At capacity limit" : `Over capacity by ${(enrolled - capacity).toLocaleString('en-IN')} students`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+          </div>
+
+        </div>
+      )}
+    </main>
+  </div>
+</Layout>
+
+<script>
+  import { isAuthenticated } from '../../lib/auth';
+  import { downloadExport } from '../../lib/api';
+
+  // Client-side authentication guard
+  if (!isAuthenticated()) {
+    window.location.href = '/auth/login';
+  } else {
+    // Show app layout once verified
+    const wrapper = document.getElementById('app-wrapper');
+    if (wrapper) {
+      wrapper.classList.remove('opacity-0');
+    }
+  }
+
+  const pdfBtn = document.getElementById('export-pdf');
+  const xlsxBtn = document.getElementById('export-excel');
+  const villageId = pdfBtn?.getAttribute('data-village-id');
+
+  if (pdfBtn && villageId) {
+    pdfBtn.addEventListener('click', async () => {
+      try {
+        pdfBtn.setAttribute('disabled', 'true');
+        const originalHTML = pdfBtn.innerHTML;
+        pdfBtn.textContent = 'Exporting…';
+        await downloadExport('pdf', villageId);
+        pdfBtn.innerHTML = originalHTML;
+      } catch (err: any) {
+        console.error(err);
+        alert(err.message || 'Failed to download PDF report.');
+        pdfBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export PDF
+        `;
+      } finally {
+        pdfBtn.removeAttribute('disabled');
+      }
+    });
+  }
+
+  if (xlsxBtn && villageId) {
+    xlsxBtn.addEventListener('click', async () => {
+      try {
+        xlsxBtn.setAttribute('disabled', 'true');
+        const originalHTML = xlsxBtn.innerHTML;
+        xlsxBtn.textContent = 'Exporting…';
+        await downloadExport('xlsx', villageId);
+        xlsxBtn.innerHTML = originalHTML;
+      } catch (err: any) {
+        console.error(err);
+        alert(err.message || 'Failed to download Excel report.');
+        xlsxBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export Excel
+        `;
+      } finally {
+        xlsxBtn.removeAttribute('disabled');
+      }
+    });
+  }
+</script>

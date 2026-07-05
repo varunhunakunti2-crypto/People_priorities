@@ -1,0 +1,156 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RankingsDashboard from '../components/RankingsDashboard';
+import NavBar from '../components/NavBar';
+import { getRankings } from '../lib/api';
+
+let initialRankings = [];
+let fetchError = null;
+
+try {
+  initialRankings = await getRankings({
+    weightDemand: 0.35,
+    weightNeed: 0.35,
+    weightNeglect: 0.20,
+    weightFeasibility: 0.10
+  });
+} catch (err: any) {
+  console.error("Astro server-side fetch failed:", err);
+  fetchError = err.message || "Failed to load initial rankings from backend API. Ensure backend is running.";
+}
+---
+
+<Layout title="Constituency Development Priorities">
+  <NavBar client:load />
+  <div id="app-wrapper" class="min-h-screen bg-[#fafafa] dark:bg-zinc-950 font-sans pb-12 opacity-0 transition-opacity duration-150">
+    <!-- Main Navigation / Header -->
+    <header class="site-pad flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-0 border-b border-[#ebebeb] dark:border-zinc-900 bg-white dark:bg-zinc-950 h-[64px] box-border w-full">
+      <div>
+        <h1 class="text-[20px] font-semibold text-[#171717] dark:text-zinc-50 select-none">
+          Constituency development priorities
+        </h1>
+        <p class="text-[12px] font-semibold text-[#888888] uppercase tracking-wider font-mono mt-0.5 select-none leading-none">
+          Dynamic prioritization algorithm for public fund allocation (GPDP/MPLADS/MLALADS)
+        </p>
+      </div>
+      
+      <div class="flex items-center gap-4 shrink-0">
+        <button 
+          id="export-pdf" 
+          type="button" 
+          class="flex items-center justify-center whitespace-nowrap shrink-0 gap-2 px-5 py-2 text-xs font-semibold border border-[#ebebeb] dark:border-zinc-800 rounded-[100px] bg-white dark:bg-zinc-900 text-[#171717] dark:text-zinc-300 hover:bg-[#fafafa] dark:hover:bg-zinc-800! transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#171717] select-none"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export PDF
+        </button>
+        <button 
+          id="export-excel" 
+          type="button" 
+          class="flex items-center justify-center whitespace-nowrap shrink-0 gap-2 px-5 py-2 text-xs font-semibold border border-[#ebebeb] dark:border-zinc-800 rounded-[100px] bg-white dark:bg-zinc-900 text-[#171717] dark:text-zinc-300 hover:bg-[#fafafa] dark:hover:bg-zinc-800! transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#171717] select-none"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export Excel
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="site-pad w-full py-8 flex flex-col gap-6 box-border">
+      
+      <!-- Budget Simulator CTA Card -->
+      <div 
+        class="flex flex-col sm:flex-row items-center justify-between gap-4 p-[20px] sm:px-[24px] rounded-[12px] shadow-sm max-w-3xl mx-auto w-full"
+        style="background: linear-gradient(135deg, #FFFFFF, #F8F6FF); border: 0.5px solid #C5BDFF;"
+      >
+        <div class="flex items-center gap-4">
+          <div class="shrink-0 text-[#7B61FF]">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-[16px] font-semibold text-gray-900 leading-tight">Ready to allocate budget?</h3>
+            <p class="text-[13px] text-[#666666] mt-1">
+              Enter your MPLADS budget and generate a ready-to-submit sanction list in seconds.
+            </p>
+          </div>
+        </div>
+        
+        <a 
+          href="/budget" 
+          class="shrink-0 inline-flex items-center justify-center bg-[#7B61FF] hover:bg-[#6A52E5] text-white font-medium text-sm transition-colors no-underline"
+          style="border-radius: 8px; padding: 10px 20px;"
+        >
+          Open Budget Simulator &rarr;
+        </a>
+      </div>
+
+      <RankingsDashboard 
+        client:load 
+        initialRankings={initialRankings} 
+        initialError={fetchError} 
+      />
+    </main>
+  </div>
+</Layout>
+
+<script>
+  import { isAuthenticated } from '../lib/auth';
+  import { downloadExport } from '../lib/api';
+
+  // Client-side authentication guard
+  if (!isAuthenticated()) {
+    window.location.href = '/auth/login';
+  } else {
+    // Show app layout once verified
+    const wrapper = document.getElementById('app-wrapper');
+    if (wrapper) {
+      wrapper.classList.remove('opacity-0');
+    }
+  }
+
+  const pdfBtn = document.getElementById('export-pdf');
+  const xlsxBtn = document.getElementById('export-excel');
+
+  pdfBtn?.addEventListener('click', async () => {
+    try {
+      pdfBtn.setAttribute('disabled', 'true');
+      pdfBtn.textContent = 'Exporting…';
+      await downloadExport('pdf');
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || 'Failed to download PDF export.');
+    } finally {
+      pdfBtn.removeAttribute('disabled');
+      pdfBtn.innerHTML = `
+        <svg class="w-3.5 h-3.5 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Export PDF
+      `;
+    }
+  });
+
+  xlsxBtn?.addEventListener('click', async () => {
+    try {
+      xlsxBtn.setAttribute('disabled', 'true');
+      xlsxBtn.textContent = 'Exporting…';
+      await downloadExport('xlsx');
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || 'Failed to download Excel export.');
+    } finally {
+      xlsxBtn.removeAttribute('disabled');
+      xlsxBtn.innerHTML = `
+        <svg class="w-3.5 h-3.5 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Export Excel
+      `;
+    }
+  });
+</script>

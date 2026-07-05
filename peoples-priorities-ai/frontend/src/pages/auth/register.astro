@@ -1,0 +1,18 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RegisterForm from '../../components/RegisterForm';
+---
+
+<Layout title="Register — Priority Allocator">
+  <div class="min-h-screen bg-[#F0F2F5] dark:bg-zinc-950 font-sans flex items-center justify-center p-6 select-none">
+    <RegisterForm client:load />
+  </div>
+</Layout>
+
+<script>
+  import { isAuthenticated } from '../../lib/auth';
+
+  if (isAuthenticated()) {
+    window.location.href = '/';
+  }
+</script>

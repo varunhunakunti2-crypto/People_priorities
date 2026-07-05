@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import LoginForm from '../../components/LoginForm';
+---
+
+<Layout title="Login — Priority Allocator">
+  <div class="min-h-screen bg-[#F0F2F5] dark:bg-zinc-950 font-sans flex items-center justify-center p-6 select-none">
+    <LoginForm client:load />
+  </div>
+</Layout>

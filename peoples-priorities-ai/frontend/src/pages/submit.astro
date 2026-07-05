@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NavBar from '../components/NavBar';
+import CitizenSubmissionForm from '../components/CitizenSubmissionForm';
+---
+
+<Layout title="Submit Development Request — People's Priorities">
+  <NavBar client:load />
+  <div id="app-wrapper" class="min-h-screen bg-[#fafafa] dark:bg-zinc-950 font-sans pb-12 opacity-0 transition-opacity duration-150 flex flex-col">
+    <main class="site-pad w-full flex-1 py-12 flex justify-center items-center box-border">
+      <CitizenSubmissionForm client:load />
+    </main>
+  </div>
+</Layout>
+
+<script>
+  import { isAuthenticated } from '../lib/auth';
+
+  // Client-side authentication guard
+  if (!isAuthenticated()) {
+    window.location.href = '/auth/login';
+  } else {
+    // Show app layout once verified
+    const wrapper = document.getElementById('app-wrapper');
+    if (wrapper) {
+      wrapper.classList.remove('opacity-0');
+    }
+  }
+</script>
