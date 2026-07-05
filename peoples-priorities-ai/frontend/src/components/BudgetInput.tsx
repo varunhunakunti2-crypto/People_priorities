@@ -77,7 +77,7 @@ export default function BudgetInput({ onSimulate, isLoading }: BudgetInputProps)
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-6">
+    <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-6">
       {/* SECTION HEADER */}
       <div className="text-center">
         <h2 className="text-lg font-bold text-gray-900 mb-1">Budget Simulator</h2>
@@ -100,7 +100,7 @@ export default function BudgetInput({ onSimulate, isLoading }: BudgetInputProps)
                 value={budgetInput}
                 onChange={handleBudgetChange}
                 placeholder="e.g. 200"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 transition-colors ${
+                className={`w-full px-4 py-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 transition-colors ${
                   error ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -124,7 +124,7 @@ export default function BudgetInput({ onSimulate, isLoading }: BudgetInputProps)
           <select
             value={themeFilter}
             onChange={(e) => setThemeFilter(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 bg-white"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7B61FF]/50 bg-white"
           >
             <option value="all">All themes</option>
             <option value="School Infrastructure">School infrastructure</option>
@@ -141,7 +141,7 @@ export default function BudgetInput({ onSimulate, isLoading }: BudgetInputProps)
         <button
           onClick={handleSimulate}
           disabled={!isValid || budgetLakh === null || isLoading}
-          className="w-full h-[44px] bg-[#7B61FF] text-white font-medium rounded-[8px] flex items-center justify-center transition-all hover:bg-[#6A52E5] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-[48px] bg-[#7B61FF] text-white font-medium rounded-[8px] flex items-center justify-center transition-all hover:bg-[#6A52E5] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

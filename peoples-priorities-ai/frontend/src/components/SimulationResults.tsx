@@ -89,7 +89,7 @@ export default function SimulationResults({ result, isLoading, onExport }: Simul
   );
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-6">
+    <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-6">
       
       {/* BUDGET SUMMARY BAR */}
       <div className="flex flex-col gap-2">
